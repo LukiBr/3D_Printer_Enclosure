@@ -1,0 +1,53 @@
+
+#!/usr/bin/python3
+
+import time
+import RPi.GPIO as GPIO
+
+# GPIO setup
+channel = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(channel, GPIO.OUT)
+
+
+def aktuelleTemperatur():
+
+    # 1-wire Slave Datei lesen
+    file = open('/sys/bus/w1/devices/28-0416a0d4a1ff/w1_slave')
+    filecontent = file.read()
+    file.close()
+
+    # Temperaturwerte auslesen und konvertieren
+    stringvalue = filecontent.split("\n")[1].split(" ")[9]
+    temperature = float(stringvalue[2:]) / 1000
+    print(temperature)
+    # Temperatur ausgeben
+    #rueckgabewert = '%6.2f' % temperature
+    #return(rueckgabewert)
+    return(temperature)
+
+
+def luefter_an(pin):
+    GPIO.output(pin, GPIO.HIGH)
+    zustand = "Lüfter an"
+    print("Lüfter an")
+
+def luefter_aus(pin):
+    GPIO.output(pin, GPIO.LOW)
+    zustand = "Lüfter aus"
+    print("Lüfter an")
+
+
+temperatur_index = float(20)
+while True:
+    temp = aktuelleTemperatur()
+    print(temp)
+    if temp > temperatur_index:
+        luefter_an(channel)
+        time.sleep(10)
+    else:
+        luefter_aus(channel)
+        time.sleep(10)
+
+
+
